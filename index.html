@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>iLovePDF - DOC to PDF Converter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #dae2f8, #d6a4a4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+
+    .file-input-wrapper {
+      margin: 20px 0;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      background-color: #f8f8f8;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    input[type="file"]:hover {
+      border-color: #007bff;
+      background-color: #f1f9ff;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 14px 25px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .status {
+      margin-top: 20px;
+      color: #333;
+      font-size: 14px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Convert DOCX to PDF</h2>
+    <form id="docToPdfForm">
+      <div class="file-input-wrapper">
+        <input type="file" name="file" accept=".doc,.docx" required />
+      </div>
+      <button type="submit">Convert Now</button>
+    </form>
+    <p class="status" id="statusText">Uploading and converting...</p>
+  </div>
+
+  <script>
+    const form = document.getElementById('docToPdfForm');
+    const statusText = document.getElementById('statusText');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      statusText.style.display = 'block';
+      statusText.textContent = 'Converting your document... Please wait.';
+
+      try {
+        const res = await fetch('/convert-to-pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          statusText.textContent = 'Conversion failed. Please try again.';
+          return;
+        }
+
+        const blob = await res.blob();
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'converted.pdf';
+        link.click();
+
+        statusText.textContent = 'Conversion successful! Downloading file...';
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
